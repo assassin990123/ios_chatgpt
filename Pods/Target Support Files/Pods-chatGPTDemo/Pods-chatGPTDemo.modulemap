@@ -1,0 +1,6 @@
+framework module Pods_chatGPTDemo {
+  umbrella header "Pods-chatGPTDemo-umbrella.h"
+
+  export *
+  module * { export * }
+}
