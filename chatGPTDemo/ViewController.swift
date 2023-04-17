@@ -37,6 +37,7 @@ class ViewController: UIViewController, UITextViewDelegate {
         let isSend: Bool
     }
     
+    // MARK: - IBOutlets
     @IBOutlet weak var lblLoader: UILabel!
     @IBOutlet weak var tblAns: UITableView!
     @IBOutlet weak var tblAnsWithImage: UITableView!
@@ -52,10 +53,12 @@ class ViewController: UIViewController, UITextViewDelegate {
     @IBOutlet weak var viewImgFullScreen: UIView!
     @IBOutlet weak var imgFullScreen: UIImageView!
     
+    // MARK: - Global Variables
     var intSelectedSegment : Int = 0
     var arrOfImages = [ImageURL]()
     var selectedImageToViewInFullScreen : UIImage!
     
+    // MARK: - Viewcontroller life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
