@@ -61,7 +61,6 @@ class ViewController: UIViewController, UITextViewDelegate {
         super.viewDidLoad()
         setupLayout()
         setUpSegment()
-        // Do any additional setup after loading the view.
     }
     
     //MARK: setupLayout
