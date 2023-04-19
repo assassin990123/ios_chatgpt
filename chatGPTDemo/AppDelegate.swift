@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  chatGPTDemo
 //
-//  Created by hiren  mistry on 17/01/23.
+//  Created by Nand  mistry on 17/01/23.
 //
 
 import UIKit
@@ -13,8 +13,7 @@ let appDelegate = UIApplication.shared.delegate as! AppDelegate
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         sleep(UInt32(1.5))
@@ -24,6 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     self.window?.rootViewController = navigationController
                     self.window?.makeKeyAndVisible()
                 }
+        
+        //IQKeyboardManager Settings
         IQKeyboardManager.shared.enable = false
         IQKeyboardManager.shared.enableAutoToolbar = true
         UIApplication.shared.applicationIconBadgeNumber = 0
@@ -36,6 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return storyboard.instantiateViewController(withIdentifier: name)
     }
     
+    // MARK: - ShowAlert
     func showAlert(strMessage: String, vc: UIViewController) {
         let alert = UIAlertController(title: "Chat GPT", message: strMessage, preferredStyle: UIAlertController.Style.alert)
         alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))

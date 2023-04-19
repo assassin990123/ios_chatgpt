@@ -28,10 +28,12 @@ enum APIError: Error {
     case unableToCreateURLForURLRequest
 }
 
+//MARK:- OpenAIManager
 class OpenAIManager {
     
     static let shared = OpenAIManager()
     
+    //MakeRequest
     func makeRequest(json: [String: Any], completion: @escaping (String)->()) {
         
         guard let url = URL(string: "https://api.openai.com/v1/completions"),
@@ -63,6 +65,7 @@ class OpenAIManager {
         }.resume()
     }
     
+    //This method will use to get response in text formate
     func processPrompt(prompt: String, isType: Bool = true, completion: @escaping ((_ reponse: String) -> Void)) {
         
         var jsonPayload = [String : Any]()
@@ -96,6 +99,7 @@ class OpenAIManager {
         }
     }
     
+    //This method will use to get response in image formate
     func fetchImageForPrompt(prompt: String, completion: @escaping ([ImageURL])->()) {
         
         let jsonPayload = [

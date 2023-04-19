@@ -2,18 +2,16 @@
 //  ViewController.swift
 //  chatGPTDemo
 //
-//  Created by hiren  mistry on 17/01/23.
+//  Created by Nand  mistry on 17/01/23.
 //
 
 import UIKit
 import SDWebImage
 import AVFoundation
 
-//https://platform.openai.com/docs/api-reference/images/create
-//https://github.com/mbabicz/SwiftUI-ChatGPT-DALL-E-2
-
 class ViewController: UIViewController, UITextViewDelegate {
-    
+        
+    // MARK: - Chat GPT Helper Data
     enum FindType {
         case Text, Code
     }
@@ -65,7 +63,8 @@ class ViewController: UIViewController, UITextViewDelegate {
         setUpSegment()
         // Do any additional setup after loading the view.
     }
-    //MARK: common
+    
+    //MARK: setupLayout
     func setupLayout() {
         self.showHideTbl()
         self.lblLoader.isHidden = true
@@ -88,6 +87,7 @@ class ViewController: UIViewController, UITextViewDelegate {
         observeKeyboardEvents()
     }
     
+    //MARK: setUpSegment
     func setUpSegment(){
         let backgroundColor = UIColor.systemGreen
         let accentColor = UIColor.systemRed
@@ -101,6 +101,7 @@ class ViewController: UIViewController, UITextViewDelegate {
         
     }
     
+    //MARK: startBlink
     func startBlink() {
         self.lblLoader.isHidden = false
         UIView.animate(withDuration: 0.8,
@@ -110,22 +111,42 @@ class ViewController: UIViewController, UITextViewDelegate {
               completion: nil)
     }
     
+    //MARK: stopBlink
     func stopBlink() {
         self.lblLoader.isHidden = true
     }
-    
-     func observeKeyboardEvents() {
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: nil) { [weak self] (notification) in
-            guard let keyboardHeight = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-            print("Keyboard height in KeyboardWillShow method: \(keyboardHeight.height)")
-            self?.cnstBottom.constant = keyboardHeight.height - 10.0
-            }
 
-         NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: nil) { [weak self] (notification) in
-             self?.cnstBottom.constant = 20.0
-         }
+    @IBAction func segmentOptionChanged(_ sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0 {
+            intSelectedSegment = 0
+            print("option 0 clicked")
+        }else if sender.selectedSegmentIndex == 1 {
+            intSelectedSegment = 1
+            print("option 1 clicked")
+        }
+        showHideTbl()
     }
-
+    
+    func showHideTbl(){
+        if intSelectedSegment == 0 {
+            self.tblAns.isHidden = false
+            self.tblAnsWithImage.isHidden = true
+        }else if intSelectedSegment == 1 {
+            self.tblAns.isHidden = true
+            self.tblAnsWithImage.isHidden = false
+        }
+    }
+    
+    //MARK: Search
+    func search(){
+        if intSelectedSegment == 0 {
+            submitText()
+        }else if intSelectedSegment == 1{
+            submitTextForImage()
+        }
+    }
+    
+    //MARK: submitText
     func submitText() {
         self.view.endEditing(true)
         self.lblAskme.isHidden = true
@@ -148,6 +169,14 @@ class ViewController: UIViewController, UITextViewDelegate {
         }
     }
     
+    //MARK: sendMessage
+    func sendMessage(question: String, isSend: Bool) {
+        self.arrOfQuestionAnswer.append(ChatGPT(questionAnswer: question, isSend: isSend))
+        self.arrOfQuestionAnswerToDisplay = self.arrOfQuestionAnswer.reversed()
+        reloadTbl()
+    }
+    
+    //MARK: submitTextForImage
     func submitTextForImage() {
         self.view.endEditing(true)
         self.lblAskme.isHidden = true
@@ -187,37 +216,12 @@ class ViewController: UIViewController, UITextViewDelegate {
             appDelegate.showAlert(strMessage: "Please enter something!", vc: self)
         }
     }
-
-    @IBAction func segmentOptionChanged(_ sender: UISegmentedControl) {
-        if sender.selectedSegmentIndex == 0 {
-            intSelectedSegment = 0
-            print("option 0 clicked")
-        }else if sender.selectedSegmentIndex == 1 {
-            intSelectedSegment = 1
-            print("option 1 clicked")
-        }
-        showHideTbl()
+    
+    //MARK: IB-Action Methods
+    @IBAction func btnCloseFullScreenImageClicked(_ sender: UIButton) {
+        self.viewImgFullScreen.isHidden = true
     }
     
-    func showHideTbl(){
-        if intSelectedSegment == 0 {
-            self.tblAns.isHidden = false
-            self.tblAnsWithImage.isHidden = true
-        }else if intSelectedSegment == 1 {
-            self.tblAns.isHidden = true
-            self.tblAnsWithImage.isHidden = false
-        }
-    }
-    
-    func search(){
-        if intSelectedSegment == 0 {
-            submitText()
-        }else if intSelectedSegment == 1{
-            submitTextForImage()
-        }
-    }
-    
-    //MARK: button click
     @IBAction func btnClearClick(_ sender: Any) {
         if intSelectedSegment == 0 {
             self.arrOfQuestionAnswer.removeAll()
@@ -236,6 +240,8 @@ class ViewController: UIViewController, UITextViewDelegate {
     @IBAction func btnSubmitClick(_ sender: Any) {
         search()
     }
+        
+    //MARK: TextView Delegate Methods
     func textViewDidChange(_ textView: UITextView) {
         print("text changing...")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -275,20 +281,7 @@ class ViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    func answerInAudio(anser : String){
-        let synthesizer = AVSpeechSynthesizer()
-        let utterance = AVSpeechUtterance(string: anser)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        synthesizer.speak(utterance)
-    }
-    
-    private func sendMessage(question: String, isSend: Bool) {
-        
-        self.arrOfQuestionAnswer.append(ChatGPT(questionAnswer: question, isSend: isSend))
-        self.arrOfQuestionAnswerToDisplay = self.arrOfQuestionAnswer.reversed()
-        reloadTbl()
-    }
-    
+    //MARK: reload Table
     func reloadTbl(){
         
         self.tblAns.reloadData()
@@ -302,6 +295,7 @@ class ViewController: UIViewController, UITextViewDelegate {
         }
     }
 
+    //MARK: reload Table With Image
     func reloadTblWithImage(){
         
         self.tblAnsWithImage.reloadData()
@@ -314,38 +308,24 @@ class ViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    @IBAction func btnCloseFullScreenImageClicked(_ sender: UIButton) {
-        self.viewImgFullScreen.isHidden = true
-    }
-    
+    //MARK: KeyboardEvents Observer
+    func observeKeyboardEvents() {
+       NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: nil) { [weak self] (notification) in
+           guard let keyboardHeight = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+           print("Keyboard height in KeyboardWillShow method: \(keyboardHeight.height)")
+           self?.cnstBottom.constant = keyboardHeight.height - 10.0
+           }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: nil) { [weak self] (notification) in
+            self?.cnstBottom.constant = 20.0
+        }
+   }
 }
 
 extension UITextView {
     func addPadding(toTop : CGFloat, toLeft : CGFloat, toBottom : CGFloat, toRight : CGFloat) {
         self.textContainerInset = UIEdgeInsets(top: toTop, left: toLeft, bottom: toBottom, right: toRight)
     }
-}
-extension Dictionary {
-    func percentEncoded() -> Data? {
-        map { key, value in
-            let escapedKey = "\(key)".addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? ""
-            let escapedValue = "\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? ""
-            return escapedKey + "=" + escapedValue
-        }
-        .joined(separator: "&")
-        .data(using: .utf8)
-    }
-}
-
-extension CharacterSet {
-    static let urlQueryValueAllowed: CharacterSet = {
-        let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
-        let subDelimitersToEncode = "!$&'()*+,;="
-        
-        var allowed: CharacterSet = .urlQueryAllowed
-        allowed.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
-        return allowed
-    }()
 }
 
 //MARK: tableview delegate and datasource
@@ -435,13 +415,14 @@ extension ViewController: UITableViewDelegate,UITableViewDataSource {
         return UITableView.automaticDimension
     }
 }
-//MARK: tableview cell
+//MARK: HumanCell
 class HumanCell: UITableViewCell {
     @IBOutlet weak var lblQuestion: UILabel!
     override func awakeFromNib() {
         
     }
 }
+//MARK: BotCell
 class BotCell: UITableViewCell {
     @IBOutlet weak var lblAnswer: UILabel!
     override func awakeFromNib() {
@@ -449,12 +430,13 @@ class BotCell: UITableViewCell {
     }
 }
 
-//MARK: tableview cell
+//MARK: HumanCellImage
 class HumanCellImage: UITableViewCell {
     @IBOutlet weak var lblQuestion: UILabel!
     override func awakeFromNib() {        
     }
 }
+//MARK: BotCellImage
 class BotCellImage: UITableViewCell {
     @IBOutlet weak var imgAnswer: UIImageView!
     @IBOutlet weak var imgActivityIndicator: UIActivityIndicatorView!
